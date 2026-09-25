@@ -164,6 +164,24 @@ func TestCleanStatements(t *testing.T) {
 			) PRIMARY KEY (id)`,
 			expected: []string{"CREATE TABLE table_name (\n  id STRING(255) NOT NULL,\n  sum NUMERIC,\n) PRIMARY KEY(id)"},
 		},
+		{
+			name: "JSON_VALUE expressions in index",
+			multiStatement: `CREATE TABLE Venues (
+				Id INT64 NOT NULL,
+				VenueName STRING(MAX),
+				VenueData JSON
+			) PRIMARY KEY (Id);
+
+			CREATE INDEX VenuesByCity ON Venues(
+				VenueName,
+				(JSON_VALUE(VenueData.address.city)),
+				(JSON_VALUE(VenueData.address.state))
+			);`,
+			expected: []string{
+				"CREATE TABLE Venues (\n  Id INT64 NOT NULL,\n  VenueName STRING(MAX),\n  VenueData JSON,\n) PRIMARY KEY(Id)",
+				"CREATE INDEX VenuesByCity ON Venues(VenueName, (JSON_VALUE(VenueData.address.city)), (JSON_VALUE(VenueData.address.state)))",
+			},
+		},
 	}
 
 	for _, tc := range testCases {

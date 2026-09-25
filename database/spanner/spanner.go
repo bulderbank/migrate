@@ -333,13 +333,104 @@ func cleanStatements(migration []byte) ([]string, error) {
 	// The Spanner GCP backend does not yet support comments for the UpdateDatabaseDdl RPC
 	// (see https://issuetracker.google.com/issues/159730604) we use
 	// spansql to parse the DDL and output valid stamements without comments
-	ddl, err := spansql.ParseDDL("", string(migration))
+	ddlSQL, restore := replaceJSONIndexExpressions(string(migration))
+	ddl, err := spansql.ParseDDL("", ddlSQL)
 	if err != nil {
 		return nil, err
 	}
 	stmts := make([]string, 0, len(ddl.List))
 	for _, stmt := range ddl.List {
-		stmts = append(stmts, stmt.SQL())
+		cleaned := stmt.SQL()
+		for placeholder, expression := range restore {
+			cleaned = strings.ReplaceAll(cleaned, placeholder, expression)
+		}
+		stmts = append(stmts, cleaned)
 	}
 	return stmts, nil
+}
+
+// replaceJSONIndexExpressions temporarily replaces parenthesized JSON_VALUE
+// expressions so spansql versions that predate expression indexes can clean
+// the rest of the DDL. The original expressions are restored after formatting.
+func replaceJSONIndexExpressions(ddl string) (string, map[string]string) {
+	var rewritten strings.Builder
+	rewritten.Grow(len(ddl))
+	restore := make(map[string]string)
+	last := 0
+	index := 0
+
+	for start := 0; start < len(ddl); start++ {
+		if ddl[start] != '(' {
+			continue
+		}
+		end := matchingParen(ddl, start)
+		if end < 0 || !isJSONValueExpression(ddl[start+1:end]) {
+			continue
+		}
+
+		placeholder := fmt.Sprintf("migrate_json_index_expression_%d", index)
+		for strings.Contains(ddl, placeholder) {
+			index++
+			placeholder = fmt.Sprintf("migrate_json_index_expression_%d", index)
+		}
+		index++
+		rewritten.WriteString(ddl[last:start])
+		rewritten.WriteString(placeholder)
+		restore[placeholder] = ddl[start : end+1]
+		last = end + 1
+		start = end
+	}
+
+	if len(restore) == 0 {
+		return ddl, restore
+	}
+	rewritten.WriteString(ddl[last:])
+	return rewritten.String(), restore
+}
+
+func isJSONValueExpression(expression string) bool {
+	expression = strings.TrimSpace(expression)
+	if len(expression) < len("JSON_VALUE(") || !strings.EqualFold(expression[:len("JSON_VALUE")], "JSON_VALUE") {
+		return false
+	}
+	open := len("JSON_VALUE")
+	for open < len(expression) && (expression[open] == ' ' || expression[open] == '\n' || expression[open] == '\r' || expression[open] == '\t') {
+		open++
+	}
+	if open == len(expression) || expression[open] != '(' {
+		return false
+	}
+	return matchingParen(expression, open) == len(expression)-1
+}
+
+func matchingParen(input string, start int) int {
+	depth := 0
+	var quote byte
+	for i := start; i < len(input); i++ {
+		ch := input[i]
+		if quote != 0 {
+			if ch == quote {
+				if i+1 < len(input) && input[i+1] == quote {
+					i++
+				} else {
+					quote = 0
+				}
+			}
+			continue
+		}
+		if ch == '\'' || ch == '"' || ch == '`' {
+			quote = ch
+			continue
+		}
+		switch ch {
+		case '(':
+			depth++
+		case ')':
+			depth--
+			if depth == 0 {
+				return i
+			}
+		}
+	}
+	return -1
 }
