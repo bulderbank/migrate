@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"sync/atomic"
 
+	"github.com/bulderbank/migrate/v4"
+	"github.com/bulderbank/migrate/v4/database"
 	"github.com/cockroachdb/cockroach-go/v2/crdb"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database"
 	"github.com/lib/pq"
 )
 

@@ -11,8 +11,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/bulderbank/migrate/v4/database"
 	"github.com/cenkalti/backoff/v4"
-	"github.com/golang-migrate/migrate/v4/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

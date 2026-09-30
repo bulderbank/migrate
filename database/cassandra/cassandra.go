@@ -10,9 +10,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/bulderbank/migrate/v4/database"
+	"github.com/bulderbank/migrate/v4/database/multistmt"
 	"github.com/gocql/gocql"
-	"github.com/golang-migrate/migrate/v4/database"
-	"github.com/golang-migrate/migrate/v4/database/multistmt"
 )
 
 func init() {

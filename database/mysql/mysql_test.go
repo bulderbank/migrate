@@ -17,12 +17,12 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/bulderbank/migrate/v4"
+	dt "github.com/bulderbank/migrate/v4/database/testing"
+	"github.com/bulderbank/migrate/v4/dktesting"
+	_ "github.com/bulderbank/migrate/v4/source/file"
 	"github.com/dhui/dktest"
 	"github.com/go-sql-driver/mysql"
-	"github.com/golang-migrate/migrate/v4"
-	dt "github.com/golang-migrate/migrate/v4/database/testing"
-	"github.com/golang-migrate/migrate/v4/dktesting"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/stretchr/testify/assert"
 )
 

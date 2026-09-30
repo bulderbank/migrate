@@ -11,8 +11,8 @@ import (
 	nurl "net/url"
 	"sync/atomic"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database"
+	"github.com/bulderbank/migrate/v4"
+	"github.com/bulderbank/migrate/v4/database"
 	_ "github.com/nakagami/firebirdsql"
 )
 

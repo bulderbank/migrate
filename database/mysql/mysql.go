@@ -17,8 +17,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/bulderbank/migrate/v4/database"
 	"github.com/go-sql-driver/mysql"
-	"github.com/golang-migrate/migrate/v4/database"
 )
 
 var _ database.Driver = (*Mysql)(nil) // explicit compile time type check

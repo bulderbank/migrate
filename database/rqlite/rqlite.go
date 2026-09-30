@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database"
+	"github.com/bulderbank/migrate/v4"
+	"github.com/bulderbank/migrate/v4/database"
 	"github.com/rqlite/gorqlite"
 )
 

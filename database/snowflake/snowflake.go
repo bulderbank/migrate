@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/golang-migrate/migrate/v4/database"
+	"github.com/bulderbank/migrate/v4/database"
 	"github.com/lib/pq"
 	sf "github.com/snowflakedb/gosnowflake"
 )

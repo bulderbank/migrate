@@ -1,4 +1,4 @@
-module github.com/golang-migrate/migrate/v4
+module github.com/bulderbank/migrate/v4
 
 go 1.25.11
 
