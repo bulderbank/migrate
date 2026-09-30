@@ -33,6 +33,9 @@ jobs:
       - name: Run test
         run: make test COVERAGE_DIR=/tmp/coverage
 
+      - name: Build Spanner CLI
+        run: go build -tags spanner ./cmd/migrate
+
       - name: Send goveralls coverage
         uses: shogo82148/actions-goveralls@v1
         with:
